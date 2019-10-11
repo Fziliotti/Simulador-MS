@@ -45,6 +45,13 @@
     let numeroDeClientesQueEsperaram = listaDeEsperasPelosClientes.filter( tempo => tempo > 0 && tempo !== undefined).length;
     return numeroDeClientesQueEsperaram / numeroTotalDeClientes;
   }
+
+   $: probabilidadeDeOperadorLivre = () => {
+    let listaDeTemposLivresDosOperadores= servicos.map(servico => servico.tempoLivreDoOperador);
+    let totalDeTempoLivreDosOperadores = listaDeTemposLivresDosOperadores.reduce((acc, atual) => acc += atual);
+    let tempoTotalDeSimulacao = ultimoServico.tempoFinalDoServicoNoRelogio;
+    return totalDeTempoLivreDosOperadores / tempoTotalDeSimulacao;
+  }
   
   
   const gerarNovoServico = () => {
@@ -85,6 +92,7 @@
     console.log(tempoMedioDeServicos())
     console.log(tempoMedioDeEsperaNaFila())
     console.log(probabilidadeDeEspera())
+    console.log(probabilidadeDeOperadorLivre())
     // console.log(indiceDoUltimoServicoConcluido)
 
 		
