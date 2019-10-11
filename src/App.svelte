@@ -5,7 +5,7 @@
 
   import {generateRandom} from './services/randomNumbers.js';
 
-  // let tempoDoSistema = 0;
+  let tempoTotalDeSimulacao = 240;
   let numeroDeClientesAcumulados = 1;
   // let numeroDeServicos;
   // let tempoChegadaNoRelogio = 0;
@@ -50,7 +50,6 @@
   $: probabilidadeDeOperadorLivre = () => {
     let listaDeTemposLivresDosOperadores= servicos.map(servico => servico.tempoLivreDoOperador);
     let totalDeTempoLivreDosOperadores = listaDeTemposLivresDosOperadores.reduce((acc, atual) => acc += atual);
-    let tempoTotalDeSimulacao = ultimoServico.tempoFinalDoServicoNoRelogio;
     return totalDeTempoLivreDosOperadores / tempoTotalDeSimulacao;
   }
   
