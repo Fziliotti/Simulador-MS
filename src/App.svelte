@@ -22,18 +22,18 @@
 		}
   ];
 
-  $: indiceDoUltimoServicoConcluido = servicos.length -1;
+  $: ultimoServico = servicos[servicos.length -1]
   
   const gerarNovoServico = () => {
     const novoCliente = clienteCorrente + 1;
-    const novoTempoDesdeUltimaChegada = 20; //Essa parte preciso gerar aleatorio mais pra frente
-    const novoTempoChegadaNoRelogio = servicos[indiceDoUltimoServicoConcluido].tempoChegadaNoRelogio + novoTempoDesdeUltimaChegada;
-    const novoTempoDeServico = 20; // Essa parte depois vai precisar gerar aleatorio tambem
-    const novoTempoInicioServicoNoRelogio = servicos[indiceDoUltimoServicoConcluido].tempoFinalDoServicoNoRelogio;
-    const novoTempoClienteNaFila = novoTempoChegadaNoRelogio - servicos[indiceDoUltimoServicoConcluido].tempoFinalDoServicoNoRelogio;
+    const novoTempoDesdeUltimaChegada = 7.5; //Essa parte preciso gerar aleatorio mais pra frente
+    const novoTempoChegadaNoRelogio = ultimoServico.tempoChegadaNoRelogio + novoTempoDesdeUltimaChegada;
+    const novoTempoDeServico = 12.6; // Essa parte depois vai precisar gerar aleatorio tambem
+    const novoTempoInicioServicoNoRelogio = ultimoServico.tempoFinalDoServicoNoRelogio;
+    const novoTempoClienteNaFila = ultimoServico.tempoFinalDoServicoNoRelogio - novoTempoChegadaNoRelogio;
     const novoTempoFinalDoServicoNoRelogio = novoTempoDeServico + novoTempoInicioServicoNoRelogio;
     const novoTempoClienteNoSistema = novoTempoDeServico + novoTempoClienteNaFila;
-    const novoTempoLivreDoOperador =  novoTempoInicioServicoNoRelogio - servicos[indiceDoUltimoServicoConcluido].tempoFinalDoServicoNoRelogio
+    const novoTempoLivreDoOperador =  novoTempoInicioServicoNoRelogio - ultimoServico.tempoFinalDoServicoNoRelogio
 
     const novoServico = {
       cliente: novoCliente,
@@ -53,7 +53,9 @@
 
   }
 
-	const handleClick = () => {
+	const handleClick = (event) => {
+
+    event.preventDefault()
 		const novoServico = gerarNovoServico() 
 		servicos = [...servicos, novoServico]
     console.table(servicos)
@@ -95,7 +97,7 @@
 <Header/>
 
 
-<form class="container">
+<form class="container my-3">
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="inputEmail4">Email</label>
@@ -106,45 +108,12 @@
       <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
     </div>
   </div>
-  <div class="form-group">
-    <label for="inputAddress">Address</label>
-    <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
-  </div>
-  <div class="form-group">
-    <label for="inputAddress2">Address 2</label>
-    <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
-  </div>
-  <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputCity">City</label>
-      <input type="text" class="form-control" id="inputCity">
-    </div>
-    <div class="form-group col-md-4">
-      <label for="inputState">State</label>
-      <select id="inputState" class="form-control">
-        <option selected>Choose...</option>
-        <option>...</option>
-      </select>
-    </div>
-    <div class="form-group col-md-2">
-      <label for="inputZip">Zip</label>
-      <input type="text" class="form-control" id="inputZip">
-    </div>
-  </div>
-  <div class="form-group">
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="gridCheck">
-      <label class="form-check-label" for="gridCheck">
-        Check me out
-      </label>
-    </div>
-  </div>
+  <button class="btn btn-large btn-primary" on:click={handleClick} > Simular</button>
 </form>
 
-  <button class="btn btn-large btn-success" on:click={handleClick} > Clicar aqui</button>
 
 <main>
-  <table class="table table-striped">
+  <table class="table table-striped my-4">
     <thead class="bg-secondary text-light">
       <tr>
         <th scope="col">Cliente</th>
