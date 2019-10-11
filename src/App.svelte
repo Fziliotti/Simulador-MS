@@ -6,6 +6,7 @@
   let clienteCorrente = 1;
   let numeroDeServicos;
   // let tempoChegadaNoRelogio = 0;
+  
 
 
   let servicos = [
@@ -22,7 +23,20 @@
 		}
   ];
 
-  $: ultimoServico = servicos[servicos.length -1]
+  $: ultimoServico = servicos[servicos.length -1];
+
+  $: tempoMedioDeServicos = () => {
+    let listaDeTemposDeServicos = servicos.map( item => item.tempoServico);
+    let tempoTotalDeServicos = listaDeTemposDeServicos.reduce((acc, atual) => acc += atual);
+    return tempoTotalDeServicos / clienteCorrente;
+  }
+
+  $: tempoMedioDeEsperaNaFila = () => {
+    let listaDeTemposDeEspera = servicos.map( item => item.tempoClienteNaFila);
+    let tempoDeEsperaTotal = listaDeTemposDeEspera.reduce((acc, atual) => acc += atual);
+    return tempoDeEsperaTotal / clienteCorrente;
+  }
+  
   
   const gerarNovoServico = () => {
     const novoCliente = clienteCorrente + 1;
@@ -33,7 +47,7 @@
     const novoTempoClienteNaFila = ultimoServico.tempoFinalDoServicoNoRelogio - novoTempoChegadaNoRelogio;
     const novoTempoFinalDoServicoNoRelogio = novoTempoDeServico + novoTempoInicioServicoNoRelogio;
     const novoTempoClienteNoSistema = novoTempoDeServico + novoTempoClienteNaFila;
-    const novoTempoLivreDoOperador =  novoTempoInicioServicoNoRelogio - ultimoServico.tempoFinalDoServicoNoRelogio
+    const novoTempoLivreDoOperador =  novoTempoInicioServicoNoRelogio - ultimoServico.tempoFinalDoServicoNoRelogio;
 
     const novoServico = {
       cliente: novoCliente,
@@ -45,20 +59,22 @@
 			tempoFinalDoServicoNoRelogio: novoTempoFinalDoServicoNoRelogio,
 			tempoClienteNoSistema: novoTempoClienteNoSistema,
 			tempoLivreDoOperador: novoTempoLivreDoOperador
-    }
+    };
 
-    clienteCorrente = clienteCorrente + 1
+    clienteCorrente = clienteCorrente + 1;
 
-    return novoServico
+    return novoServico;
 
   }
 
 	const handleClick = (event) => {
 
-    event.preventDefault()
-		const novoServico = gerarNovoServico() 
-		servicos = [...servicos, novoServico]
-    console.table(servicos)
+    event.preventDefault();
+		const novoServico = gerarNovoServico();
+		servicos = [...servicos, novoServico];
+    // console.table(servicos);
+    console.log(tempoMedioDeServicos())
+    console.log(tempoMedioDeEsperaNaFila())
     // console.log(indiceDoUltimoServicoConcluido)
 
 		
