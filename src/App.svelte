@@ -2,8 +2,6 @@
   import Header from './components/Header.svelte';
 
   import ChartTMNF from './components/ChartTMNF.svelte'; //chart tempo Medio na fila
-  // import ChartTMNF from './components/ChartTMNF.svelte'; //chart tempo Medio na fila
-  // import ChartTMNF from './components/ChartTMNF.svelte'; //chart tempo Medio na fila
 
   import {generateRandom} from './services/randomNumbers.js';
 
@@ -88,10 +86,15 @@
 
   let listaDeTemposMediosNafila = []
 
+
+
+
+  let intervalReference;
+
 	const handleSubmit = (event) => {
     event.preventDefault()
     
-    setInterval( () => {
+    intervalReference = setInterval( () => {
       listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
       const novoServico = gerarNovoServico();
       servicos = [...servicos, novoServico];
@@ -104,6 +107,10 @@
       // console.log(probabilidadeDeOperadorLivre())
       // console.log(indiceDoUltimoServicoConcluido)
     },2000)
+  }
+
+  const handleStopClick = () => {
+    clearInterval(intervalReference)
   }
   
 </script>
@@ -151,6 +158,7 @@
     </div>
   </div>
   <button class="btn btn-large btn-primary" on:click|preventDefault|once={handleSubmit}> Simular</button>
+  <button class="btn btn-large btn-danger" on:click|preventDefault|once={handleStopClick}> Parar</button>
 </form>
 
 <div class="container">
