@@ -6,7 +6,7 @@
   import {generateRandom} from './services/randomNumbers.js';
 
   // let tempoDoSistema = 0;
-  let clienteCorrente = 1;
+  let numeroDeClientesAcumulados = 1;
   // let numeroDeServicos;
   // let tempoChegadaNoRelogio = 0;
   
@@ -27,21 +27,21 @@
   $: ultimoServico = servicos[servicos.length -1];
 
   $: tempoMedioDeServicos = () => {
-    let numeroTotalDeClientes = clienteCorrente
+    let numeroTotalDeClientes = numeroDeClientesAcumulados
     let listaDeTemposDeServicos = servicos.map( item => item.tempoServico);
     let tempoTotalDeServicos = listaDeTemposDeServicos.reduce((acc, atual) => acc += atual);
     return tempoTotalDeServicos / numeroTotalDeClientes;
   }
 
   $: tempoMedioDeEsperaNaFila = () => {
-    let numeroTotalDeClientes = clienteCorrente
+    let numeroTotalDeClientes = numeroDeClientesAcumulados
     let listaDeTemposDeEspera = servicos.map( item => item.tempoClienteNaFila);
     let tempoDeEsperaTotal = listaDeTemposDeEspera.reduce((acc, atual) => acc += atual);
-    return tempoDeEsperaTotal / clienteCorrente;
+    return tempoDeEsperaTotal / numeroDeClientesAcumulados;
   }
 
   $: probabilidadeDeEspera = () => {
-    let numeroTotalDeClientes = clienteCorrente
+    let numeroTotalDeClientes = numeroDeClientesAcumulados
     let listaDeEsperasPelosClientes= servicos.map(servico => servico.tempoClienteNaFila);
     let numeroDeClientesQueEsperaram = listaDeEsperasPelosClientes.filter( tempo => tempo > 0 && tempo !== undefined).length;
     return numeroDeClientesQueEsperaram / numeroTotalDeClientes;
@@ -56,7 +56,7 @@
   
   
   const gerarNovoServico = () => {
-    const novoCliente = clienteCorrente + 1;
+    const novoCliente = numeroDeClientesAcumulados + 1;
     const novoTempoDesdeUltimaChegada = 7.5; //Essa parte preciso gerar aleatorio mais pra frente
     const novoTempoChegadaNoRelogio = ultimoServico.tempoChegadaNoRelogio + novoTempoDesdeUltimaChegada;
     const novoTempoDeServico = 12.6; // Essa parte depois vai precisar gerar aleatorio tambem
@@ -78,7 +78,7 @@
 			tempoLivreDoOperador: novoTempoLivreDoOperador
     };
 
-    clienteCorrente = clienteCorrente + 1;
+    numeroDeClientesAcumulados = numeroDeClientesAcumulados + 1;
 
     return novoServico;
 
@@ -161,6 +161,8 @@
   <button class="btn btn-large btn-danger" on:click|preventDefault|once={handleStopClick}> Parar</button>
 </form>
 
+<hr>
+
 <div class="container">
   <div class="row">
     <div class="col-md-4">
@@ -177,7 +179,7 @@
   </div>
 </div>
 
-
+<hr>
 <main>
   <table class="table table-striped my-4">
     <thead class="bg-secondary text-light">
@@ -212,7 +214,19 @@
 
     </tbody>
   </table>
+
+<hr>
+<p>Número de clientes que entraram no sistema: {numeroDeClientesAcumulados}</p>
+<p>Tempo médio de espera na fila: { tempoMedioDeEsperaNaFila().toFixed(2)}</p>
+<p>Probabilidade de um cliente esperar na fila: {probabilidadeDeEspera().toFixed(2)}</p>
+<p>Probabilidade do operador livre: {probabilidadeDeOperadorLivre().toFixed(2)}</p>
+<p>Tempo médio de serviço: {tempoMedioDeServicos().toFixed(2)}</p>
+
+
 </main>
+
+
+
 
 
 
