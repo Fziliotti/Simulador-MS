@@ -1,9 +1,12 @@
 <script>
-	import Header from './components/Header.svelte';
-  export let name;
+  import Header from './components/Header.svelte';
+  import {generateRandom} from './services/randomNumbers.js'
 
-	let name2 = "teste";
-	let tempoDoSistema = 0;
+  // let tempoDoSistema = 0;
+  let clienteCorrente = 1;
+  let numeroDeServicos;
+  // let tempoChegadaNoRelogio = 0;
+
 
   let servicos = [
 		{
@@ -17,29 +20,47 @@
 			tempoClienteNoSistema: 11.5,
 			tempoLivreDoOperador: 17.5
 		}
-	];
+  ];
+
+  $: indiceDoUltimoServicoConcluido = servicos.length -1;
+  
+  const gerarNovoServico = () => {
+    const novoCliente = clienteCorrente + 1;
+    const novoTempoDesdeUltimaChegada = 20; //Essa parte preciso gerar aleatorio mais pra frente
+    const novoTempoChegadaNoRelogio = servicos[indiceDoUltimoServicoConcluido].tempoChegadaNoRelogio + novoTempoDesdeUltimaChegada;
+    const novoTempoDeServico = 20; // Essa parte depois vai precisar gerar aleatorio tambem
+    const novoTempoInicioServicoNoRelogio = servicos[indiceDoUltimoServicoConcluido].tempoFinalDoServicoNoRelogio;
+    const novoTempoClienteNaFila = novoTempoChegadaNoRelogio - servicos[indiceDoUltimoServicoConcluido].tempoFinalDoServicoNoRelogio;
+    const novoTempoFinalDoServicoNoRelogio = novoTempoDeServico + novoTempoInicioServicoNoRelogio;
+    const novoTempoClienteNoSistema = novoTempoDeServico + novoTempoClienteNaFila;
+    const novoTempoLivreDoOperador =  novoTempoInicioServicoNoRelogio - servicos[indiceDoUltimoServicoConcluido].tempoFinalDoServicoNoRelogio
+
+    const novoServico = {
+      cliente: novoCliente,
+			tempoDesdeUltimaChegada: novoTempoDesdeUltimaChegada,
+			tempoChegadaNoRelogio: novoTempoChegadaNoRelogio,
+			tempoServico: novoTempoDeServico,
+			tempoInicioServicoNoRelogio: novoTempoInicioServicoNoRelogio,
+			tempoClienteNaFila: novoTempoClienteNaFila,
+			tempoFinalDoServicoNoRelogio: novoTempoFinalDoServicoNoRelogio,
+			tempoClienteNoSistema: novoTempoClienteNoSistema,
+			tempoLivreDoOperador: novoTempoLivreDoOperador
+    }
+
+    clienteCorrente = clienteCorrente + 1
+
+    return novoServico
+
+  }
 
 	const handleClick = () => {
+		const novoServico = gerarNovoServico() 
+		servicos = [...servicos, novoServico]
+    console.table(servicos)
+    // console.log(indiceDoUltimoServicoConcluido)
 
-		setInterval(() => {
-			const newService = {
-				cliente: 2,
-				tempoDesdeUltimaChegada: 7.5,
-				tempoChegadaNoRelogio: 25,
-				tempoServico: 12.6,
-				tempoInicioServicoNoRelogio: 29,
-				tempoClienteNaFila: 4,
-				tempoFinalDoServicoNoRelogio: 41.6,
-				tempoClienteNoSistema: 16.6,
-				tempoLivreDoOperador: 0
-			}
-
-		servicos = [...servicos, newService]
-
-		},1000)
 		
 	}
-
 
 </script>
 
@@ -118,10 +139,9 @@
       </label>
     </div>
   </div>
-  <button class="btn btn-large btn-success" on:click={handleClick} > Clicar aqui</button>
 </form>
 
-
+  <button class="btn btn-large btn-success" on:click={handleClick} > Clicar aqui</button>
 
 <main>
   <table class="table table-striped">
@@ -143,30 +163,18 @@
       {#each servicos as servico}
         <tr>
           <th scope="row">{servico.cliente}</th>
-          <td>{servico.tempoDesdeUltimaChegada}</td>
-          <td>{servico.tempoChegadaNoRelogio}</td>
-          <td>{servico.tempoServico}</td>
-          <td>{servico.tempoInicioServicoNoRelogio}</td>
-          <td>{servico.tempoClienteNaFila}</td>
-          <td>{servico.tempoFinalDoServicoNoRelogio}</td>
-          <td>{servico.tempoClienteNoSistema}</td>
-          <td>{servico.tempoLivreDoOperador}</td>
+          <td>{servico.tempoDesdeUltimaChegada.toFixed(2)}</td>
+          <td>{servico.tempoChegadaNoRelogio.toFixed(2)}</td>
+          <td>{servico.tempoServico.toFixed(2)}</td>
+          <td>{servico.tempoInicioServicoNoRelogio.toFixed(2)}</td>
+          <td>{servico.tempoClienteNaFila.toFixed(2)}</td>
+          <td>{servico.tempoFinalDoServicoNoRelogio.toFixed(2)}</td>
+          <td>{servico.tempoClienteNoSistema.toFixed(2)}</td>
+          <td>{servico.tempoLivreDoOperador.toFixed(2)}</td>
         </tr>
 
-				 <tr>
-          <th scope="row">{servico.cliente}</th>
-          <td>{servico.tempoDesdeUltimaChegada}</td>
-          <td>{servico.tempoChegadaNoRelogio}</td>
-          <td>{servico.tempoServico}</td>
-          <td>{servico.tempoInicioServicoNoRelogio}</td>
-          <td>{servico.tempoClienteNaFila}</td>
-          <td>{servico.tempoFinalDoServicoNoRelogio}</td>
-          <td>{servico.tempoClienteNoSistema}</td>
-          <td>{servico.tempoLivreDoOperador}</td>
-        </tr>
       {/each}
 
     </tbody>
   </table>
-
 </main>
