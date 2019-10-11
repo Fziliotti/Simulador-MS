@@ -156,7 +156,7 @@
 <div class="container">
   <div class="row">
     <div class="col-md-4">
-      <ChartTMNF data={listaDeTemposMediosNafila} />
+      <ChartTMNF data={listaDeTemposMediosNafila} numeroDeIteracoes={15} />
     </div>
 
     <div class="col-md-4">

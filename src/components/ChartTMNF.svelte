@@ -1,19 +1,19 @@
 
-<canvas id="myChart" width="400" height="400"></canvas>
+<canvas id="chartTMNF" width="400" height="400"></canvas>
 
 <script>
-import {afterUpdate} from 'svelte';
-
+import { afterUpdate } from 'svelte';
 export let data;
+export let numeroDeIteracoes;
 
 function createChart(){
-  var ctx = document.getElementById('myChart');
-  var myChart = new Chart(ctx, {
+  var ctx = document.getElementById('chartTMNF');
+  var chartTMNF = new Chart(ctx, {
       type: 'line',
       data: {
-          labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+          labels: [...new Array(numeroDeIteracoes).fill(0).map((it,i) => ++i)],
           datasets: [{
-              label: '# of Votes',
+              label: 'Tempo médio na fila',
               data,
               backgroundColor: [
                   'rgba(255, 99, 132, 0.2)',
@@ -33,15 +33,6 @@ function createChart(){
               ],
               borderWidth: 1
           }]
-      },
-      options: {
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  }
-              }]
-          }
       }
   });
 }
