@@ -4,7 +4,7 @@
 
   // let tempoDoSistema = 0;
   let clienteCorrente = 1;
-  let numeroDeServicos;
+  // let numeroDeServicos;
   // let tempoChegadaNoRelogio = 0;
   
 
@@ -26,15 +26,24 @@
   $: ultimoServico = servicos[servicos.length -1];
 
   $: tempoMedioDeServicos = () => {
+    let numeroTotalDeClientes = clienteCorrente
     let listaDeTemposDeServicos = servicos.map( item => item.tempoServico);
     let tempoTotalDeServicos = listaDeTemposDeServicos.reduce((acc, atual) => acc += atual);
-    return tempoTotalDeServicos / clienteCorrente;
+    return tempoTotalDeServicos / numeroTotalDeClientes;
   }
 
   $: tempoMedioDeEsperaNaFila = () => {
+    let numeroTotalDeClientes = clienteCorrente
     let listaDeTemposDeEspera = servicos.map( item => item.tempoClienteNaFila);
     let tempoDeEsperaTotal = listaDeTemposDeEspera.reduce((acc, atual) => acc += atual);
     return tempoDeEsperaTotal / clienteCorrente;
+  }
+
+  $: probabilidadeDeEspera = () => {
+    let numeroTotalDeClientes = clienteCorrente
+    let listaDeEsperasPelosClientes= servicos.map(servico => servico.tempoClienteNaFila);
+    let numeroDeClientesQueEsperaram = listaDeEsperasPelosClientes.filter( tempo => tempo > 0 && tempo !== undefined).length;
+    return numeroDeClientesQueEsperaram / numeroTotalDeClientes;
   }
   
   
@@ -69,12 +78,13 @@
 
 	const handleClick = (event) => {
 
-    event.preventDefault();
 		const novoServico = gerarNovoServico();
-		servicos = [...servicos, novoServico];
+    servicos = [...servicos, novoServico];
+    
     // console.table(servicos);
     console.log(tempoMedioDeServicos())
     console.log(tempoMedioDeEsperaNaFila())
+    console.log(probabilidadeDeEspera())
     // console.log(indiceDoUltimoServicoConcluido)
 
 		
@@ -124,7 +134,7 @@
       <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
     </div>
   </div>
-  <button class="btn btn-large btn-primary" on:click={handleClick} > Simular</button>
+  <button class="btn btn-large btn-primary" on:click|preventDefault={handleClick} > Simular</button>
 </form>
 
 
