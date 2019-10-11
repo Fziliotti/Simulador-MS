@@ -1,14 +1,17 @@
 <script>
   import Header from './components/Header.svelte';
-  import {generateRandom} from './services/randomNumbers.js'
+
+  import ChartTMNF from './components/ChartTMNF.svelte'; //chart tempo Medio na fila
+  // import ChartTMNF from './components/ChartTMNF.svelte'; //chart tempo Medio na fila
+  // import ChartTMNF from './components/ChartTMNF.svelte'; //chart tempo Medio na fila
+
+  import {generateRandom} from './services/randomNumbers.js';
 
   // let tempoDoSistema = 0;
   let clienteCorrente = 1;
   // let numeroDeServicos;
   // let tempoChegadaNoRelogio = 0;
   
-
-
   let servicos = [
 		{
 			cliente: 1,
@@ -46,7 +49,7 @@
     return numeroDeClientesQueEsperaram / numeroTotalDeClientes;
   }
 
-   $: probabilidadeDeOperadorLivre = () => {
+  $: probabilidadeDeOperadorLivre = () => {
     let listaDeTemposLivresDosOperadores= servicos.map(servico => servico.tempoLivreDoOperador);
     let totalDeTempoLivreDosOperadores = listaDeTemposLivresDosOperadores.reduce((acc, atual) => acc += atual);
     let tempoTotalDeSimulacao = ultimoServico.tempoFinalDoServicoNoRelogio;
@@ -83,21 +86,26 @@
 
   }
 
-	const handleClick = (event) => {
+  let listaDeTemposMediosNafila = []
 
-		const novoServico = gerarNovoServico();
-    servicos = [...servicos, novoServico];
+	const handleSubmit = (event) => {
+    event.preventDefault()
     
-    // console.table(servicos);
-    console.log(tempoMedioDeServicos())
-    console.log(tempoMedioDeEsperaNaFila())
-    console.log(probabilidadeDeEspera())
-    console.log(probabilidadeDeOperadorLivre())
-    // console.log(indiceDoUltimoServicoConcluido)
+    setInterval( () => {
+      listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
+      const novoServico = gerarNovoServico();
+      servicos = [...servicos, novoServico];
 
-		
-	}
-
+      
+      // console.table(servicos);
+      // console.log(tempoMedioDeServicos())
+      // console.log(tempoMedioDeEsperaNaFila())
+      // console.log(probabilidadeDeEspera())
+      // console.log(probabilidadeDeOperadorLivre())
+      // console.log(indiceDoUltimoServicoConcluido)
+    },2000)
+  }
+  
 </script>
 
 <style>
@@ -142,8 +150,24 @@
       <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
     </div>
   </div>
-  <button class="btn btn-large btn-primary" on:click|preventDefault={handleClick} > Simular</button>
+  <button class="btn btn-large btn-primary" on:click|preventDefault|once={handleSubmit}> Simular</button>
 </form>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <ChartTMNF data={listaDeTemposMediosNafila} />
+    </div>
+
+    <div class="col-md-4">
+      
+    </div>
+
+    <div class="col-md-4">
+    
+    </div>
+  </div>
+</div>
 
 
 <main>
@@ -181,3 +205,6 @@
     </tbody>
   </table>
 </main>
+
+
+
