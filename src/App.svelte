@@ -3,17 +3,18 @@
   import Footer from './components/Footer.svelte';
 
   import ChartSimulacao from './components/Chart.svelte'; //chart tempo Medio na fila
-
-  import {generateRandom} from './services/randomNumbers.js';
-
+  import {generateRandom, nextExponential, nextNormal} from './services/randomNumbers.js';
   import { fade } from 'svelte/transition';
 
   //VARIAVEIS DO SISTEMA
-  let tempoTotalDeSimulacao = 240;
   let numeroDeClientesAcumulados = 1;
+
+  let tempoTotalDeSimulacao = 240;
   let temposEntreTodasChegadas = [ 17.5, 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
+  // let temposEntreTodasChegadas = [];
   let temposDeTodosOsServicos = [ 11.5, 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
-  let numeroDeServicos = 15
+  // let temposDeTodosOsServicos = [];
+  let numeroDeServicos =15
 
   // VARIAVEIS PARA GERAÇÃO DINAMICA DOS GRAFICOS
   let listaDeTemposMediosNafila = []
@@ -23,6 +24,7 @@
   let listaDeTemposMediosDespendidoNoSistema = []
   
   let servicos = [];
+  
 
   $: ultimoServico = () => servicos[servicos.length - 1];
 
@@ -145,23 +147,44 @@
     listaDeTemposMediosDespendidoNoSistema = [...listaDeTemposMediosDespendidoNoSistema, tempoMedioDespendidoNoSistema() ]
   }
 
+  // let temposEntreTodasChegadas = [ 17.5, 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
+  // let temposDeTodosOsServicos = [ 11.5, 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
+
+
+  // const gerarTemposEntreTodasAsChegadas = () => {
+  //   for(let i = 0; i < numeroDeServicos; i++ ){
+  //     let novoTempo = nextExponential(0.4)
+  //     temposEntreTodasChegadas = [...temposEntreTodasChegadas, novoTempo]
+  //   }
+  // }
+
+  // const gerarTemposDeTodosOsServicos = () => {
+  //    for(let i = 0; i < numeroDeServicos; i++ ){
+  //     let novoTempo = nextExponential(0.4) * 2;
+  //     temposDeTodosOsServicos = [...temposDeTodosOsServicos, novoTempo]
+    
+  //   }
+  // }
+
 
   const simularProblema = () => {
+      // gerarTemposEntreTodasAsChegadas()
+      // gerarTemposDeTodosOsServicos()
       for(let i = 0; i < numeroDeServicos; i++ ){
         setTimeout(() => {
           let novoServico = gerarServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i])
           servicos = [...servicos, novoServico];
           alimentarDadosDosGraficos()
-        },1000 * i)
-        
+        },600 * i)
+      
       }
   }
 
-  
   // Funções 
 	const iniciarSimulacao = (event) => {
     event.preventDefault()
     simularProblema()
+    console.log(servicos)
   }
 
  
@@ -174,19 +197,14 @@
     margin: 0;
   }
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100px;
-    background: #4d5382;
+  @media print {
+    header, footer, form, .btn-imprimir{
+      display: none;
+      visibility: hidden;
+    }
   }
 
-  .header__title {
-		font-size: 24px;
-		text-transform: uppercase;
-    color: white;
-	}
+
 	
 	main{
 		margin-top:2rem;
@@ -201,14 +219,22 @@
 
 <form class="container my-3">
   <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Email</label>
-      <input type="email" class="form-control" id="inputEmail4" placeholder="Email">
+    <div class="form-group col-md-3">
+      <label for="inputNumeroDeServicos">Número de serviços:</label>
+      <input type="number" class="form-control" id="inputNumeroDeServicos" placeholder="número de serviços">
     </div>
-    <div class="form-group col-md-6">
+
+    <div class="form-group col-md-3">
       <label for="inputPassword4">Password</label>
       <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
     </div>
+
+     <div class="form-group col-md-3">
+      <label for="inputPassword4">Password</label>
+      <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
+    </div>
+
+
   </div>
   <button class="btn btn-large btn-primary" on:click|preventDefault|once={iniciarSimulacao}> Simular</button>
   <!-- <button class="btn btn-large btn-danger" on:click|preventDefault|once={pararSimulacao}> Parar</button> -->
@@ -217,6 +243,10 @@
 <hr>
 
 <div class="container">
+  <div class="d-flex justify-content-end text-right">
+    <button class="btn-imprimir btn btn-secondary" on:click="{() => window.print()}">Imprimir</button>
+  </div>
+
   <div class="row">
     <div class="col-md-4">
       <ChartSimulacao  data={listaDeTemposMediosNafila} backgroundColor='#EF5B5B' numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio na fila de espera" />
@@ -243,20 +273,22 @@
 
   <div class="row">
    <div class="col-md-4">
-      <ChartSimulacao  data={listaDeProbabilidadesDeOperadoresLivre} backgroundColor='#466365' numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio na fila de espera" />
+      <ChartSimulacao  data={listaDeProbabilidadesDeOperadoresLivre} backgroundColor='#466365' numeroDeIteracoes={numeroDeServicos} titulo="Probabilidade de operador livre" />
     </div>
 
     <div class="col-md-4">
-      <ChartSimulacao  data={listaDeProbDeClienteEsperarNaFila} backgroundColor='#ABFAA9' numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio de serviço" />
+      <ChartSimulacao  data={listaDeProbDeClienteEsperarNaFila} backgroundColor='#ABFAA9' numeroDeIteracoes={numeroDeServicos} titulo="Probabilidade do cliente esperar" />
     </div>
 
      <div class="col-md-4">
-      <ChartSimulacao  data={listaDeTemposMediosDespendidoNoSistema} backgroundColor='#C6B9CD' numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio de serviço" />
+      <ChartSimulacao  data={listaDeTemposMediosDespendidoNoSistema} backgroundColor='#C6B9CD' numeroDeIteracoes={numeroDeServicos} titulo="Tempos Médios despendido no sistema" />
     </div>
   </div>
+
 </div>
 
 <hr>
+
 <main>
   <table class="table table-striped table-hover my-4">
     <thead class="bg-secondary text-light">
