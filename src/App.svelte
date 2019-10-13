@@ -1,19 +1,23 @@
 <script>
   import Header from './components/Header.svelte';
 
-  import ChartTMNF from './components/ChartTMNF.svelte'; //chart tempo Medio na fila
+  import ChartSimulacao from './components/Chart.svelte'; //chart tempo Medio na fila
 
   import {generateRandom} from './services/randomNumbers.js';
 
   import { fade } from 'svelte/transition';
 
+  //VARIAVEIS DO SISTEMA
   let tempoTotalDeSimulacao = 240;
   let numeroDeClientesAcumulados = 1;
-  let listaDeTemposMediosNafila = []
   let intervalReference;
   let temposEntreTodasChegadas = [ 17.5, 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
   let temposDeTodosOsServicos = [ 11.5, 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
   let numeroDeServicos = 15
+
+  // VARIAVEIS PARA GERAÇÃO DINAMICA DOS GRAFICOS
+  let listaDeTemposMediosNafila = []
+  let listaDeTemposMediosDeServico = []
   
   let servicos = [];
 
@@ -136,7 +140,10 @@
         setTimeout(() => {
           let novoServico = gerarServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i])
           servicos = [...servicos, novoServico];
+
           listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
+          listaDeTemposMediosDeServico = [...listaDeTemposMediosDeServico, tempoMedioDeServicos() ]
+          
         },1000 * i)
         
       }
@@ -207,15 +214,24 @@
 <div class="container">
   <div class="row">
     <div class="col-md-4">
-      <ChartTMNF data={listaDeTemposMediosNafila} numeroDeIteracoes={15} />
+      <ChartSimulacao  data={listaDeTemposMediosNafila} numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio na fila de espera" />
     </div>
 
     <div class="col-md-4">
-      
+      <ChartSimulacao  data={listaDeTemposMediosDeServico} numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio de serviço" />
     </div>
 
     <div class="col-md-4">
-    
+      {#if servicos.length != 0}
+      <div class="pt-4">
+        <p>Número total de clientes: <span class="bg-primary p-1 text-light">{numeroDeClientesAcumulados}</span></p>
+        <p>Tempo médio de espera na fila: <span class="bg-primary p-1 text-light">{ tempoMedioDeEsperaNaFila().toFixed(2)}</span></p>
+        <p>Probabilidade de um cliente esperar na fila: <span class="bg-primary p-1 text-light">{probabilidadeDeEspera().toFixed(2)}</span></p>
+        <p>Probabilidade do operador livre: <span class="bg-primary p-1 text-light">{probabilidadeDeOperadorLivre().toFixed(2)}</span></p>
+        <p>Tempo médio de serviço: <span class="bg-primary p-1 text-light">{tempoMedioDeServicos().toFixed(2)}</span></p>
+        <p>Tempo médio despendido no sistema: <span class="bg-primary p-1 text-light">{tempoMedioDespendidoNoSistema().toFixed(2)}</span></p>
+      </div>
+      {/if}
     </div>
   </div>
 </div>
@@ -259,14 +275,7 @@
   </table>
 
 <hr>
-{#if servicos.length != 0}
-  <p>Número de clientes que entraram no sistema: {numeroDeClientesAcumulados}</p>
-  <p>Tempo médio de espera na fila: { tempoMedioDeEsperaNaFila().toFixed(2)}</p>
-  <p>Probabilidade de um cliente esperar na fila: {probabilidadeDeEspera().toFixed(2)}</p>
-  <p>Probabilidade do operador livre: {probabilidadeDeOperadorLivre().toFixed(2)}</p>
-  <p>Tempo médio de serviço: {tempoMedioDeServicos().toFixed(2)}</p>
-  <p>Tempo médio despendido no sistema: {tempoMedioDespendidoNoSistema().toFixed(2)}</p>
-{/if}
+
 
 </main>
 

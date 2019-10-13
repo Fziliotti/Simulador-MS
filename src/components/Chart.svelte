@@ -1,19 +1,20 @@
 
-<canvas id="chartTMNF" width="400" height="400"></canvas>
+
 
 <script>
 import { afterUpdate } from 'svelte';
 export let data;
 export let numeroDeIteracoes;
+export let titulo;
+let canvas;
 
 function createChart(){
-  var ctx = document.getElementById('chartTMNF');
-  var chartTMNF = new Chart(ctx, {
+  var chartTMNF = new Chart(canvas, {
       type: 'line',
       data: {
           labels: [...new Array(numeroDeIteracoes).fill(0).map((it,i) => ++i)],
           datasets: [{
-              label: 'Tempo médio na fila',
+              label: titulo,
               data,
               backgroundColor: [
                   'rgba(255, 99, 132, 0.2)',
@@ -45,4 +46,6 @@ afterUpdate( () => {
 <style>
   /* your styles go here */
 </style>
+
+<canvas id="chartTMNF" bind:this={canvas} width="400" height="400"></canvas>
 
