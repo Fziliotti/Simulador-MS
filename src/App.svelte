@@ -9,25 +9,11 @@
   let numeroDeClientesAcumulados = 1;
   let listaDeTemposMediosNafila = []
   let intervalReference;
-  let temposEntreTodasChegadas = [ 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
-  let temposDeTodosOsServicos = [ 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
-  let numeroDeServicos = 14
-  // let numeroDeServicos;
-  // let tempoChegadaNoRelogio = 0;
+  let temposEntreTodasChegadas = [ 17.5, 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
+  let temposDeTodosOsServicos = [ 11.5, 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
+  let numeroDeServicos = 15
   
-  let servicos = [
-		{
-			cliente: 1,
-			tempoDesdeUltimaChegada: 17.5,
-			tempoChegadaNoRelogio: 17.5,
-			tempoServico: 11.5,
-			tempoInicioServicoNoRelogio: 17.5,
-			tempoClienteNaFila: 0,
-			tempoFinalDoServicoNoRelogio: 29,
-			tempoClienteNoSistema: 11.5,
-			tempoLivreDoOperador: 17.5
-		}
-  ];
+  let servicos = [];
 
   $: ultimoServico = () => servicos[servicos.length - 1];
 
@@ -59,11 +45,12 @@
   }
   
   
-  const gerarNovoServico = (NTDUC, NTCNR) => {
+  const gerarNovoServico = (NTDUC, NTSNR) => {
     const novoCliente = numeroDeClientesAcumulados + 1;
     const novoTempoDesdeUltimaChegada = NTDUC; //Essa parte preciso gerar aleatorio mais pra frente
     const novoTempoChegadaNoRelogio = ultimoServico().tempoChegadaNoRelogio + novoTempoDesdeUltimaChegada;
-    const novoTempoDeServico = NTCNR; // Essa parte depois vai precisar gerar aleatorio tambem
+    const novoTempoDeServico = NTSNR; // Essa parte depois vai precisar gerar aleatorio tambem
+
     const novoTempoInicioServicoNoRelogio = () => {
       const tempoDoUltimoServicoJaConcluido = ultimoServico().tempoFinalDoServicoNoRelogio;
       if (tempoDoUltimoServicoJaConcluido > novoTempoChegadaNoRelogio)
@@ -71,8 +58,7 @@
       else
          return novoTempoChegadaNoRelogio
     }
-    
-
+  
     const novoTempoClienteNaFila = () => {
       const diferencaEntreTempos = ultimoServico().tempoFinalDoServicoNoRelogio - novoTempoChegadaNoRelogio;
       if (diferencaEntreTempos > 0)
@@ -103,22 +89,40 @@
 
   }
 
- 
+  const gerarPrimeiroServico = (NTDUC, NTSNR) => {
+
+    const novoTempoFinalDoServicoNoRelogio = NTDUC + NTSNR;
+    const novoTempoClienteNoSistema = NTSNR ;
+
+    const novoServico = {
+      cliente: 1,
+			tempoDesdeUltimaChegada: NTDUC,
+			tempoChegadaNoRelogio: NTDUC,
+			tempoServico: NTSNR,
+			tempoInicioServicoNoRelogio: NTDUC,
+			tempoClienteNaFila: 0,
+			tempoFinalDoServicoNoRelogio: novoTempoFinalDoServicoNoRelogio,
+			tempoClienteNoSistema: novoTempoClienteNoSistema,
+			tempoLivreDoOperador: NTDUC
+    };
+
+    return novoServico;
+  }
 
   const simularProblema = () => {
+      let novoServico;
 
       for(let i = 0; i < numeroDeServicos; i++ ){
-        setTimeout(() => {
-          listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
-          const novoServico = gerarNovoServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i] );
-          servicos = [...servicos, novoServico];
-          console.log(servicos)
-          console.log(ultimoServico())
-        },500)
-       
-      }
+        if(servicos.length != 0)
+          novoServico = gerarNovoServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i]);
+        else
+          novoServico = gerarPrimeiroServico(temposEntreTodasChegadas[0],temposDeTodosOsServicos[0] )
+        
+
+        servicos = [...servicos, novoServico];
+        listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
       
-    
+      }
   }
 
   
@@ -215,32 +219,35 @@
       </tr>
     </thead>
     <tbody>
+  {#if servicos.length != 0}
+    {#each servicos as servico}
+      <tr>
+        <th scope="row">{servico.cliente}</th>
+        <td>{servico.tempoDesdeUltimaChegada.toFixed(2)}</td>
+        <td>{servico.tempoChegadaNoRelogio.toFixed(2)}</td>
+        <td>{servico.tempoServico.toFixed(2)}</td>
+        <td>{servico.tempoInicioServicoNoRelogio.toFixed(2)}</td>
+        <td>{servico.tempoClienteNaFila.toFixed(2)}</td>
+        <td>{servico.tempoFinalDoServicoNoRelogio.toFixed(2)}</td>
+        <td>{servico.tempoClienteNoSistema.toFixed(2)}</td>
+        <td>{servico.tempoLivreDoOperador.toFixed(2)}</td>
+      </tr>
 
-      {#each servicos as servico}
-        <tr>
-          <th scope="row">{servico.cliente}</th>
-          <td>{servico.tempoDesdeUltimaChegada.toFixed(2)}</td>
-          <td>{servico.tempoChegadaNoRelogio.toFixed(2)}</td>
-          <td>{servico.tempoServico.toFixed(2)}</td>
-          <td>{servico.tempoInicioServicoNoRelogio.toFixed(2)}</td>
-          <td>{servico.tempoClienteNaFila.toFixed(2)}</td>
-          <td>{servico.tempoFinalDoServicoNoRelogio.toFixed(2)}</td>
-          <td>{servico.tempoClienteNoSistema.toFixed(2)}</td>
-          <td>{servico.tempoLivreDoOperador.toFixed(2)}</td>
-        </tr>
-
-      {/each}
+    {/each}
+  {/if}
+      
 
     </tbody>
   </table>
 
 <hr>
-<p>Número de clientes que entraram no sistema: {numeroDeClientesAcumulados}</p>
-<p>Tempo médio de espera na fila: { tempoMedioDeEsperaNaFila().toFixed(2)}</p>
-<p>Probabilidade de um cliente esperar na fila: {probabilidadeDeEspera().toFixed(2)}</p>
-<p>Probabilidade do operador livre: {probabilidadeDeOperadorLivre().toFixed(2)}</p>
-<p>Tempo médio de serviço: {tempoMedioDeServicos().toFixed(2)}</p>
-
+{#if servicos.length != 0}
+  <p>Número de clientes que entraram no sistema: {numeroDeClientesAcumulados}</p>
+  <p>Tempo médio de espera na fila: { tempoMedioDeEsperaNaFila().toFixed(2)}</p>
+  <p>Probabilidade de um cliente esperar na fila: {probabilidadeDeEspera().toFixed(2)}</p>
+  <p>Probabilidade do operador livre: {probabilidadeDeOperadorLivre().toFixed(2)}</p>
+  <p>Tempo médio de serviço: {tempoMedioDeServicos().toFixed(2)}</p>
+{/if}
 
 </main>
 
