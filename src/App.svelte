@@ -5,6 +5,8 @@
 
   import {generateRandom} from './services/randomNumbers.js';
 
+  import { fade } from 'svelte/transition';
+
   let tempoTotalDeSimulacao = 240;
   let numeroDeClientesAcumulados = 1;
   let listaDeTemposMediosNafila = []
@@ -44,6 +46,12 @@
     return totalDeTempoLivreDosOperadores / tempoTotalDeSimulacao;
   }
   
+  $: tempoMedioDespendidoNoSistema = () => {
+    let numeroTotalDeClientes = numeroDeClientesAcumulados
+    let listaDeTemposNoSistema= servicos.map(servico => servico.tempoClienteNoSistema);
+    let totalDeTemposNoSistema = listaDeTemposNoSistema.reduce((acc, atual) => acc += atual);
+    return totalDeTemposNoSistema / numeroTotalDeClientes;
+  }
   
   const gerarNovoServico = (NTDUC, NTSNR) => {
     const novoCliente = numeroDeClientesAcumulados + 1;
@@ -109,23 +117,33 @@
     return novoServico;
   }
 
+  const gerarServico = (NTDUC, NTSNR) => {
+    let novoServico;
+
+    let naoEhPrimeiroServico = servicos.length != 0
+    
+    if(naoEhPrimeiroServico)
+      novoServico = gerarNovoServico(NTDUC, NTSNR);
+    else
+      novoServico = gerarPrimeiroServico(NTDUC, NTSNR);
+
+    return novoServico
+  }
+
+
   const simularProblema = () => {
-      let novoServico;
-
       for(let i = 0; i < numeroDeServicos; i++ ){
-        if(servicos.length != 0)
-          novoServico = gerarNovoServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i]);
-        else
-          novoServico = gerarPrimeiroServico(temposEntreTodasChegadas[0],temposDeTodosOsServicos[0] )
+        setTimeout(() => {
+          let novoServico = gerarServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i])
+          servicos = [...servicos, novoServico];
+          listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
+        },1000 * i)
         
-
-        servicos = [...servicos, novoServico];
-        listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
-      
       }
   }
 
   
+  // Funções 
 	const iniciarSimulacao = (event) => {
     event.preventDefault()
     simularProblema()
@@ -221,7 +239,7 @@
     <tbody>
   {#if servicos.length != 0}
     {#each servicos as servico}
-      <tr>
+      <tr transition:fade="{{duration: 1000}}">
         <th scope="row">{servico.cliente}</th>
         <td>{servico.tempoDesdeUltimaChegada.toFixed(2)}</td>
         <td>{servico.tempoChegadaNoRelogio.toFixed(2)}</td>
@@ -247,6 +265,7 @@
   <p>Probabilidade de um cliente esperar na fila: {probabilidadeDeEspera().toFixed(2)}</p>
   <p>Probabilidade do operador livre: {probabilidadeDeOperadorLivre().toFixed(2)}</p>
   <p>Tempo médio de serviço: {tempoMedioDeServicos().toFixed(2)}</p>
+  <p>Tempo médio despendido no sistema: {tempoMedioDespendidoNoSistema().toFixed(2)}</p>
 {/if}
 
 </main>
