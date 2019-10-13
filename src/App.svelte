@@ -7,6 +7,11 @@
 
   let tempoTotalDeSimulacao = 240;
   let numeroDeClientesAcumulados = 1;
+  let listaDeTemposMediosNafila = []
+  let intervalReference;
+  let temposEntreTodasChegadas = [ 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
+  let temposDeTodosOsServicos = [ 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
+  let numeroDeServicos = 14
   // let numeroDeServicos;
   // let tempoChegadaNoRelogio = 0;
   
@@ -24,7 +29,7 @@
 		}
   ];
 
-  $: ultimoServico = servicos[servicos.length -1];
+  $: ultimoServico = () => servicos[servicos.length - 1];
 
   $: tempoMedioDeServicos = () => {
     let numeroTotalDeClientes = numeroDeClientesAcumulados
@@ -54,24 +59,39 @@
   }
   
   
-  const gerarNovoServico = () => {
+  const gerarNovoServico = (NTDUC, NTCNR) => {
     const novoCliente = numeroDeClientesAcumulados + 1;
-    const novoTempoDesdeUltimaChegada = 7.5; //Essa parte preciso gerar aleatorio mais pra frente
-    const novoTempoChegadaNoRelogio = ultimoServico.tempoChegadaNoRelogio + novoTempoDesdeUltimaChegada;
-    const novoTempoDeServico = 12.6; // Essa parte depois vai precisar gerar aleatorio tambem
-    const novoTempoInicioServicoNoRelogio = ultimoServico.tempoFinalDoServicoNoRelogio;
-    const novoTempoClienteNaFila = ultimoServico.tempoFinalDoServicoNoRelogio - novoTempoChegadaNoRelogio;
-    const novoTempoFinalDoServicoNoRelogio = novoTempoDeServico + novoTempoInicioServicoNoRelogio;
-    const novoTempoClienteNoSistema = novoTempoDeServico + novoTempoClienteNaFila;
-    const novoTempoLivreDoOperador =  novoTempoInicioServicoNoRelogio - ultimoServico.tempoFinalDoServicoNoRelogio;
+    const novoTempoDesdeUltimaChegada = NTDUC; //Essa parte preciso gerar aleatorio mais pra frente
+    const novoTempoChegadaNoRelogio = ultimoServico().tempoChegadaNoRelogio + novoTempoDesdeUltimaChegada;
+    const novoTempoDeServico = NTCNR; // Essa parte depois vai precisar gerar aleatorio tambem
+    const novoTempoInicioServicoNoRelogio = () => {
+      const tempoDoUltimoServicoJaConcluido = ultimoServico().tempoFinalDoServicoNoRelogio;
+      if (tempoDoUltimoServicoJaConcluido > novoTempoChegadaNoRelogio)
+        return tempoDoUltimoServicoJaConcluido
+      else
+         return novoTempoChegadaNoRelogio
+    }
+    
+
+    const novoTempoClienteNaFila = () => {
+      const diferencaEntreTempos = ultimoServico().tempoFinalDoServicoNoRelogio - novoTempoChegadaNoRelogio;
+      if (diferencaEntreTempos > 0)
+        return diferencaEntreTempos
+      else
+        return 0
+    }
+
+    const novoTempoFinalDoServicoNoRelogio = novoTempoDeServico + novoTempoInicioServicoNoRelogio();
+    const novoTempoClienteNoSistema = novoTempoDeServico + novoTempoClienteNaFila();
+    const novoTempoLivreDoOperador =  novoTempoInicioServicoNoRelogio() - ultimoServico().tempoFinalDoServicoNoRelogio;
 
     const novoServico = {
       cliente: novoCliente,
 			tempoDesdeUltimaChegada: novoTempoDesdeUltimaChegada,
 			tempoChegadaNoRelogio: novoTempoChegadaNoRelogio,
 			tempoServico: novoTempoDeServico,
-			tempoInicioServicoNoRelogio: novoTempoInicioServicoNoRelogio,
-			tempoClienteNaFila: novoTempoClienteNaFila,
+			tempoInicioServicoNoRelogio: novoTempoInicioServicoNoRelogio(),
+			tempoClienteNaFila: novoTempoClienteNaFila(),
 			tempoFinalDoServicoNoRelogio: novoTempoFinalDoServicoNoRelogio,
 			tempoClienteNoSistema: novoTempoClienteNoSistema,
 			tempoLivreDoOperador: novoTempoLivreDoOperador
@@ -83,32 +103,32 @@
 
   }
 
-  let listaDeTemposMediosNafila = []
+ 
 
+  const simularProblema = () => {
 
-
-
-  let intervalReference;
-
-	const handleSubmit = (event) => {
-    event.preventDefault()
-    
-    intervalReference = setInterval( () => {
-      listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
-      const novoServico = gerarNovoServico();
-      servicos = [...servicos, novoServico];
-
+      for(let i = 0; i < numeroDeServicos; i++ ){
+        setTimeout(() => {
+          listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
+          const novoServico = gerarNovoServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i] );
+          servicos = [...servicos, novoServico];
+          console.log(servicos)
+          console.log(ultimoServico())
+        },500)
+       
+      }
       
-      // console.table(servicos);
-      // console.log(tempoMedioDeServicos())
-      // console.log(tempoMedioDeEsperaNaFila())
-      // console.log(probabilidadeDeEspera())
-      // console.log(probabilidadeDeOperadorLivre())
-      // console.log(indiceDoUltimoServicoConcluido)
-    },2000)
+    
   }
 
-  const handleStopClick = () => {
+  
+	const iniciarSimulacao = (event) => {
+    event.preventDefault()
+    simularProblema()
+  }
+
+  const pararSimulacao = () => {
+    event.preventDefault()
     clearInterval(intervalReference)
   }
   
@@ -156,8 +176,8 @@
       <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
     </div>
   </div>
-  <button class="btn btn-large btn-primary" on:click|preventDefault|once={handleSubmit}> Simular</button>
-  <button class="btn btn-large btn-danger" on:click|preventDefault|once={handleStopClick}> Parar</button>
+  <button class="btn btn-large btn-primary" on:click|preventDefault|once={iniciarSimulacao}> Simular</button>
+  <button class="btn btn-large btn-danger" on:click|preventDefault|once={pararSimulacao}> Parar</button>
 </form>
 
 <hr>
@@ -180,7 +200,7 @@
 
 <hr>
 <main>
-  <table class="table table-striped my-4">
+  <table class="table table-striped table-hover my-4">
     <thead class="bg-secondary text-light">
       <tr>
         <th scope="col">Cliente</th>
