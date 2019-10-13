@@ -4,9 +4,7 @@ Essa é uma aplicação web que permite a modelagem e simulação de um projeto 
 
 <br>
 
-## Introdução
-
-### Pré requisitos
+## Pré requisitos
 - npm: `npm install -g`
 - [node](https://nodejs.org/en/download/)
 
@@ -20,7 +18,7 @@ node -v
 ```
 
 
-### Iniciando a aplicação
+## Iniciando a aplicação
 
 Primeiro instale as dependências:
 ```bash
