@@ -9,7 +9,7 @@
     align-items: center;
     justify-content: center;
     height: 100px;
-    background: #4d5382;
+    background: #0B3142;
   }
 
   .header__title {
