@@ -1,20 +1,20 @@
 <script>
+  import { fade } from 'svelte/transition';
   import Header from './components/Header.svelte';
   import Footer from './components/Footer.svelte';
-
   import ChartSimulacao from './components/Chart.svelte'; //chart tempo Medio na fila
+  import {SIMULATION_EXAMPLE} from './constants/mockSimulacoes.js';
   import {generateRandom, nextExponential, nextNormal} from './services/randomNumbers.js';
-  import { fade } from 'svelte/transition';
+
 
   //VARIAVEIS DO SISTEMA
   let numeroDeClientesAcumulados = 1;
-
   let tempoTotalDeSimulacao = 240;
-  let temposEntreTodasChegadas = [ 17.5, 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
-  // let temposEntreTodasChegadas = [];
-  let temposDeTodosOsServicos = [ 11.5, 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
-  // let temposDeTodosOsServicos = [];
+  let temposEntreTodasChegadas = [];
+  let temposDeTodosOsServicos = [];
   let numeroDeServicos =15
+  let servicos = [];
+
 
   // VARIAVEIS PARA GERAÇÃO DINAMICA DOS GRAFICOS
   let listaDeTemposMediosNafila = []
@@ -23,11 +23,13 @@
   let listaDeProbDeClienteEsperarNaFila = []
   let listaDeTemposMediosDespendidoNoSistema = []
   
-  let servicos = [];
+  
   
 
   $: ultimoServico = () => servicos[servicos.length - 1];
 
+
+  // FUNÇÕES PARA GERAÇÃO DINAMICA DO RELATORIO (GRAFICOS E INFORMAÇÕES)
   $: tempoMedioDeServicos = () => {
     let numeroTotalDeClientes = numeroDeClientesAcumulados
     let listaDeTemposDeServicos = servicos.map( item => item.tempoServico);
@@ -61,7 +63,17 @@
     let totalDeTemposNoSistema = listaDeTemposNoSistema.reduce((acc, atual) => acc += atual);
     return totalDeTemposNoSistema / numeroTotalDeClientes;
   }
-  
+
+  const alimentarDadosDosGraficos = () => {
+    listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
+    listaDeTemposMediosDeServico = [...listaDeTemposMediosDeServico, tempoMedioDeServicos() ]
+    listaDeProbabilidadesDeOperadoresLivre = [...listaDeProbabilidadesDeOperadoresLivre, probabilidadeDeOperadorLivre() ]
+    listaDeProbDeClienteEsperarNaFila = [...listaDeProbDeClienteEsperarNaFila, probabilidadeDeEspera() ]
+    listaDeTemposMediosDespendidoNoSistema = [...listaDeTemposMediosDespendidoNoSistema, tempoMedioDespendidoNoSistema() ]
+  }
+
+
+  // FUNÇÕES DA SIMULAÇÃO
   const gerarNaoPrimeiroServico = (NTDUC, NTSNR) => {
     const novoCliente = numeroDeClientesAcumulados + 1;
     const novoTempoDesdeUltimaChegada = NTDUC; //Essa parte preciso gerar aleatorio mais pra frente
@@ -139,13 +151,7 @@
     return novoServico
   }
 
-  const alimentarDadosDosGraficos = () => {
-    listaDeTemposMediosNafila = [...listaDeTemposMediosNafila, tempoMedioDeEsperaNaFila() ]
-    listaDeTemposMediosDeServico = [...listaDeTemposMediosDeServico, tempoMedioDeServicos() ]
-    listaDeProbabilidadesDeOperadoresLivre = [...listaDeProbabilidadesDeOperadoresLivre, probabilidadeDeOperadorLivre() ]
-    listaDeProbDeClienteEsperarNaFila = [...listaDeProbDeClienteEsperarNaFila, probabilidadeDeEspera() ]
-    listaDeTemposMediosDespendidoNoSistema = [...listaDeTemposMediosDespendidoNoSistema, tempoMedioDespendidoNoSistema() ]
-  }
+  
 
   // let temposEntreTodasChegadas = [ 17.5, 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
   // let temposDeTodosOsServicos = [ 11.5, 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
@@ -180,15 +186,42 @@
       }
   }
 
-  // Funções 
-	const iniciarSimulacao = (event) => {
+  // FUNÇÕES DISPARADAS PELOS BOT~E
+	const handleSimularClick = (event) => {
     event.preventDefault()
     simularProblema()
-    console.log(servicos)
   }
 
+  const handleSimularSlideClick = () => {
+    let tempoSimulacao = SIMULATION_EXAMPLE.tempoTotalDeSimulacao;
+    
+    for(let i = 0; i < numeroDeServicos; i++ ){
+      setTimeout(() => {
+        let novoServico = gerarServico(SIMULATION_EXAMPLE.temposEntreTodasChegadas[i],SIMULATION_EXAMPLE.temposDeTodosOsServicos[i])
+        servicos = [...servicos, novoServico];
+        alimentarDadosDosGraficos()
+      },600 * i)
+    }
+  }
+
+
+  // CONTROLE FORMULÁRIO
+  let tecOpcoes = [
+		{ id: 1, text: `Determinístico` },
+		{ id: 2, text: `Aleatório Exponencial` }
+  ];
+
+  let tsOpcoes = [
+		{ id: 1, text: `Determinístico` },
+		{ id: 2, text: `Aleatório Exponencial` }
+  ];
+
+  let tecSelecionado = "";
+  let tsSelecionado = "";
+
  
-  
+
+
 </script>
 
 <style>
@@ -214,30 +247,81 @@
 	}
 </style>
 
-<Header/>
 
+
+<Header/>
 
 <form class="container my-3">
   <div class="form-row">
     <div class="form-group col-md-3">
-      <label for="inputNumeroDeServicos">Número de serviços:</label>
-      <input type="number" class="form-control" id="inputNumeroDeServicos" placeholder="número de serviços">
+      <label for="inputTS">Tempo da simulação</label>
+      <input type="number" min="1" max="9999" class="form-control" id="inputTS" placeholder="tempo da simulação">
     </div>
-
+  </div>
+  
+  <!-- Tempo entre chegadas -->
+   <div class="form-row">
     <div class="form-group col-md-3">
-      <label for="inputPassword4">Password</label>
-      <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
+      <label for="inputTEC">Tempo entre chegadas</label>
+      <select class="form-control" value={tecSelecionado} id="inputTEC"  bind:value={tecSelecionado}>
+        <option value={0}>
+          Selecione alguma...
+        </option>
+        {#each tecOpcoes as option}
+          <option value={option}>
+            {option.text}
+          </option>
+        {/each}
+      </select>
     </div>
 
-     <div class="form-group col-md-3">
-      <label for="inputPassword4">Password</label>
-      <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
+  {#if tecSelecionado.id === 1 }
+     <div in:fade  class="form-group col-md-4">
+      <label for="inputTEC">Quantos minutos o serviço demora?</label>
+      <input type="number" class="form-control" id="inputTEC" min="1" max="999" placeholder="tempo em minutos">
     </div>
-
+  {:else if tecSelecionado.id === 2}
+    <div in:fade class="form-group col-md-2">
+      <label for="inputLambdaExponencial">Valor do Lambda</label>
+      <input type="number" class="form-control" id="inputLambdaExponencial" placeholder="">
+    </div>
+  {/if}
 
   </div>
-  <button class="btn btn-large btn-primary" on:click|preventDefault|once={iniciarSimulacao}> Simular</button>
-  <!-- <button class="btn btn-large btn-danger" on:click|preventDefault|once={pararSimulacao}> Parar</button> -->
+
+ 
+  <!-- Tempo de serviços -->
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <label for="inputTS">Tempo dos serviços</label>
+      <select class="form-control" value={tsSelecionado} id="inputTS"  bind:value={tsSelecionado}>
+        <option value={0}>
+          Selecione alguma...
+        </option>
+        {#each tsOpcoes as option}
+          <option value={option}>
+            {option.text}
+          </option>
+        {/each}
+      </select>
+    </div>
+
+  {#if tsSelecionado.id === 1 }
+     <div in:fade  class="form-group col-md-4">
+      <label for="inputNumeroDeServicos">Quantos minutos o serviço demora?</label>
+      <input type="number" class="form-control" id="inputNumeroDeServicos" min="1" max="999" placeholder="tempo em minutos">
+    </div>
+  {:else if tsSelecionado.id === 2}
+    <div in:fade class="form-group col-md-2">
+      <label for="inputNumeroDeServicos">Valor do Lambda</label>
+      <input type="number" class="form-control" id="inputNumeroDeServicos" placeholder="">
+    </div>
+  {/if}
+
+  </div>
+  
+  <button class="btn btn-large btn-primary" on:click|preventDefault|once={handleSimularClick}> Simular</button>
+  <button class="btn btn-large btn-secondary" on:click|preventDefault|once={handleSimularSlideClick}> Simular Exemplo Slide</button>
 </form>
 
 <hr>
