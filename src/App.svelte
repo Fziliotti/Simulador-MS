@@ -239,7 +239,7 @@
           let novoServico = gerarServico(SIMULATION_EXAMPLE.temposEntreTodasChegadas[i],SIMULATION_EXAMPLE.temposDeTodosOsServicos[i])
           servicos = [...servicos, novoServico];
           alimentarDadosDosGraficos()
-        },600 * i)
+        },1000 * i)
       }
   }
 
