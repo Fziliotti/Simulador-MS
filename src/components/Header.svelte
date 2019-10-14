@@ -13,14 +13,15 @@
   }
 
   .header__title {
-		font-size: 24px;
+		font-size: 30px;
 		text-transform: uppercase;
+    letter-spacing: 3px;
     color: white;
 	}
 	
 </style>
 
 <header class="header">
-  <h1 class="header__title">Projeto MS - Simulação</h1>
+  <h1 class="header__title">Teoria das filas - Modelo MM1</h1>
 </header>
 

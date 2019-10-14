@@ -13,7 +13,7 @@
   let tempoTotalDeSimulacao = 0;
   let temposEntreTodasChegadas = [];
   let temposDeTodosOsServicos = [];
-  let numeroDeServicos =15;
+  let numeroDeServicos = 15;
   let servicos = [];
 
 
@@ -191,34 +191,48 @@
   const simularProblema = () => {
     var i = 0;
 
-    while (tempoAtualDaSimulação < tempoTotalDeSimulacao && (tempoTotalDeSimulacao - tempoAtualDaSimulação) > 10 ){
-      
-   
+    while (tempoAtualDaSimulação < tempoTotalDeSimulacao ){
       gerarTEC()
       gerarTS()
-
+      
       let novoServico = gerarServico(temposEntreTodasChegadas[i], temposDeTodosOsServicos[i] );
-
       servicos = [...servicos, novoServico];
       tempoAtualDaSimulação = tempoAtualDaSimulação + novoServico.tempoDesdeUltimaChegada;
       i++;
       alimentarDadosDosGraficos();
+      console.log(tempoAtualDaSimulação)
     }
 
   }
 
   // FUNÇÕES DISPARADAS PELOS BOTÕES
-	const handleSimularClick = (event) => {
-    event.preventDefault()
-    
+	const handleSubmit = (event) => {
+    event.preventDefault();
+    simularProblema();
 
+  }
 
-    simularProblema()
+  const resetSimulation = () => {
+    numeroDeClientesAcumulados = 1;
+    tempoAtualDaSimulação = 0;
+    tempoTotalDeSimulacao = 0;
+    temposEntreTodasChegadas = [];
+    temposDeTodosOsServicos = [];
+    servicos = []
+
+    listaDeTemposMediosNafila = []
+    listaDeTemposMediosDeServico = []
+    listaDeProbabilidadesDeOperadoresLivre = []
+    listaDeProbDeClienteEsperarNaFila = []
+    listaDeTemposMediosDespendidoNoSistema = []
   }
 
   const handleSimularSlideClick = () => {
+      resetSimulation()
+      
       numeroDeServicos = SIMULATION_EXAMPLE.numeroDeServicos;
       tempoTotalDeSimulacao = SIMULATION_EXAMPLE.tempoTotalDeSimulacao;
+      
 
       for(let i = 0; i < numeroDeServicos; i++ ){
         setTimeout(() => {
@@ -287,7 +301,7 @@
 
 <Header/>
 
-<form class="container my-5" on:submit={handleSimularClick}>
+<form class="container my-5" on:submit={handleSubmit}>
   <div class="form-row">
     <div class="form-group col-md-4 offset-md-2">
       <label for="inputTS">Tempo da simulação</label>
@@ -357,9 +371,9 @@
   </div>
   
   <div class="offset-md-2">
-    <input type="submit" class="btn btn-large btn-primary">
+    <input type="submit" value="Simular" class="btn btn-large btn-primary">
 
-      <button class="btn btn-large btn-danger float-right" on:click|preventDefault|once={handleSimularSlideClick}> Simular Exemplo Slide</button>
+      <button class="btn btn-large btn-danger float-right" on:click|preventDefault={handleSimularSlideClick}> Simular Exemplo Slide</button>
   </div>
   
   
