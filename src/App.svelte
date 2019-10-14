@@ -9,11 +9,13 @@
 
   //VARIAVEIS DO SISTEMA
   let numeroDeClientesAcumulados = 1;
-  let tempoTotalDeSimulacao = 240;
+  let tempoAtualDaSimulação = 0;
+  let tempoTotalDeSimulacao = 0;
   let temposEntreTodasChegadas = [];
   let temposDeTodosOsServicos = [];
-  let numeroDeServicos =15
+  let numeroDeServicos =15;
   let servicos = [];
+
 
 
   // VARIAVEIS PARA GERAÇÃO DINAMICA DOS GRAFICOS
@@ -152,56 +154,79 @@
   }
 
   
+//  let tecOpcoes = [
+// 		{ id: 1, text: `Determinístico` },
+// 		{ id: 2, text: `Aleatório Exponencial` }
+//   ];
 
-  // let temposEntreTodasChegadas = [ 17.5, 7.5, 12.5, 2.5, 2.5, 2.5, 2.5, 37.5, 17.5, 17.5, 32.5, 37.5, 7.5, 12.5, 12.5];
-  // let temposDeTodosOsServicos = [ 11.5, 12.6, 12.0, 11.5, 12, 10.4, 11.5, 13.1, 10.4, 11.5, 11.5, 9.8, 10.9, 11.5, 10.4];
+//   let tsOpcoes = [
+// 		{ id: 1, text: `Determinístico` },
+// 		{ id: 2, text: `Aleatório Exponencial` }
+//   ];
 
 
-  // const gerarTemposEntreTodasAsChegadas = () => {
-  //   for(let i = 0; i < numeroDeServicos; i++ ){
-  //     let novoTempo = nextExponential(0.4)
-  //     temposEntreTodasChegadas = [...temposEntreTodasChegadas, novoTempo]
-  //   }
-  // }
+  const gerarTEC = () => {
+    if (tecSelecionado.id === 1){
+      temposEntreTodasChegadas = [...temposEntreTodasChegadas, inputTEC]
+    }
 
-  // const gerarTemposDeTodosOsServicos = () => {
-  //    for(let i = 0; i < numeroDeServicos; i++ ){
-  //     let novoTempo = nextExponential(0.4) * 2;
-  //     temposDeTodosOsServicos = [...temposDeTodosOsServicos, novoTempo]
-    
-  //   }
-  // }
+    if(tecSelecionado.id === 2){
+      let novoTEC = nextExponential(inputLambdaTEC);
+      temposEntreTodasChegadas = [...temposEntreTodasChegadas, novoTEC]
+    }
+  }
+
+  const gerarTS = () => {
+    if (tsSelecionado.id === 1){
+      temposDeTodosOsServicos = [...temposDeTodosOsServicos, inputTS]
+    }
+
+    if(tsSelecionado.id === 2){
+      let novoTS = nextExponential(inputLambdaTS);
+      temposDeTodosOsServicos = [...temposDeTodosOsServicos, novoTS]
+    }
+  }
 
 
   const simularProblema = () => {
-      // gerarTemposEntreTodasAsChegadas()
-      // gerarTemposDeTodosOsServicos()
-      for(let i = 0; i < numeroDeServicos; i++ ){
-        setTimeout(() => {
-          let novoServico = gerarServico(temposEntreTodasChegadas[i],temposDeTodosOsServicos[i])
-          servicos = [...servicos, novoServico];
-          alimentarDadosDosGraficos()
-        },600 * i)
+    var i = 0;
+
+    while (tempoAtualDaSimulação < tempoTotalDeSimulacao && (tempoTotalDeSimulacao - tempoAtualDaSimulação) > 10 ){
       
-      }
+   
+      gerarTEC()
+      gerarTS()
+
+      let novoServico = gerarServico(temposEntreTodasChegadas[i], temposDeTodosOsServicos[i] );
+
+      servicos = [...servicos, novoServico];
+      tempoAtualDaSimulação = tempoAtualDaSimulação + novoServico.tempoDesdeUltimaChegada;
+      i++;
+      alimentarDadosDosGraficos();
+    }
+
   }
 
-  // FUNÇÕES DISPARADAS PELOS BOT~E
+  // FUNÇÕES DISPARADAS PELOS BOTÕES
 	const handleSimularClick = (event) => {
     event.preventDefault()
+    
+
+
     simularProblema()
   }
 
   const handleSimularSlideClick = () => {
-    let tempoSimulacao = SIMULATION_EXAMPLE.tempoTotalDeSimulacao;
-    
-    for(let i = 0; i < numeroDeServicos; i++ ){
-      setTimeout(() => {
-        let novoServico = gerarServico(SIMULATION_EXAMPLE.temposEntreTodasChegadas[i],SIMULATION_EXAMPLE.temposDeTodosOsServicos[i])
-        servicos = [...servicos, novoServico];
-        alimentarDadosDosGraficos()
-      },600 * i)
-    }
+      numeroDeServicos = SIMULATION_EXAMPLE.numeroDeServicos;
+      tempoTotalDeSimulacao = SIMULATION_EXAMPLE.tempoTotalDeSimulacao;
+
+      for(let i = 0; i < numeroDeServicos; i++ ){
+        setTimeout(() => {
+          let novoServico = gerarServico(SIMULATION_EXAMPLE.temposEntreTodasChegadas[i],SIMULATION_EXAMPLE.temposDeTodosOsServicos[i])
+          servicos = [...servicos, novoServico];
+          alimentarDadosDosGraficos()
+        },600 * i)
+      }
   }
 
 
@@ -218,6 +243,12 @@
 
   let tecSelecionado = "";
   let tsSelecionado = "";
+
+  let inputTS = "";
+  let inputTEC = "";
+
+  let inputLambdaTEC = "";
+  let inputLambdaTS = "";
 
  
 
@@ -245,25 +276,30 @@
 		margin: 0 auto;
 		padding: 1rem;
 	}
+
+  form{
+    background-color: #fdfdfd;
+    padding:10px;
+  }
 </style>
 
 
 
 <Header/>
 
-<form class="container my-3">
+<form class="container my-5" on:submit={handleSimularClick}>
   <div class="form-row">
-    <div class="form-group col-md-3">
+    <div class="form-group col-md-4 offset-md-2">
       <label for="inputTS">Tempo da simulação</label>
-      <input type="number" min="1" max="9999" class="form-control" id="inputTS" placeholder="tempo da simulação">
+      <input required bind:value={tempoTotalDeSimulacao} type="number" min="1" max="9999" class="form-control" id="inputTS" placeholder="tempo da simulação">
     </div>
   </div>
   
   <!-- Tempo entre chegadas -->
    <div class="form-row">
-    <div class="form-group col-md-3">
+    <div class="form-group col-md-4 offset-md-2">
       <label for="inputTEC">Tempo entre chegadas</label>
-      <select class="form-control" value={tecSelecionado} id="inputTEC"  bind:value={tecSelecionado}>
+      <select required class="form-control" value={tecSelecionado} id="inputTEC"  bind:value={tecSelecionado}>
         <option value={0}>
           Selecione alguma...
         </option>
@@ -277,13 +313,13 @@
 
   {#if tecSelecionado.id === 1 }
      <div in:fade  class="form-group col-md-4">
-      <label for="inputTEC">Quantos minutos o serviço demora?</label>
-      <input type="number" class="form-control" id="inputTEC" min="1" max="999" placeholder="tempo em minutos">
+      <label for="inputTEC">Qual o tempo entre as chegadas?</label>
+      <input type="number" bind:value={inputTEC} class="form-control" id="inputTEC" min="1" max="999" placeholder="tempo em minutos">
     </div>
   {:else if tecSelecionado.id === 2}
     <div in:fade class="form-group col-md-2">
       <label for="inputLambdaExponencial">Valor do Lambda</label>
-      <input type="number" class="form-control" id="inputLambdaExponencial" placeholder="">
+      <input type="number" step="0.01" bind:value={inputLambdaTEC} class="form-control" id="inputLambdaExponencial" placeholder="">
     </div>
   {/if}
 
@@ -292,9 +328,9 @@
  
   <!-- Tempo de serviços -->
   <div class="form-row">
-    <div class="form-group col-md-3">
+    <div class="form-group col-md-4 offset-md-2">
       <label for="inputTS">Tempo dos serviços</label>
-      <select class="form-control" value={tsSelecionado} id="inputTS"  bind:value={tsSelecionado}>
+      <select required class="form-control" value={tsSelecionado} id="inputTS"  bind:value={tsSelecionado}>
         <option value={0}>
           Selecione alguma...
         </option>
@@ -309,19 +345,24 @@
   {#if tsSelecionado.id === 1 }
      <div in:fade  class="form-group col-md-4">
       <label for="inputNumeroDeServicos">Quantos minutos o serviço demora?</label>
-      <input type="number" class="form-control" id="inputNumeroDeServicos" min="1" max="999" placeholder="tempo em minutos">
+      <input type="number" bind:value={inputTS} class="form-control" id="inputNumeroDeServicos" min="1" max="999" placeholder="tempo em minutos">
     </div>
   {:else if tsSelecionado.id === 2}
     <div in:fade class="form-group col-md-2">
       <label for="inputNumeroDeServicos">Valor do Lambda</label>
-      <input type="number" class="form-control" id="inputNumeroDeServicos" placeholder="">
+      <input type="number" step="0.01" class="form-control" bind:value={inputLambdaTS} id="inputNumeroDeServicos" placeholder="">
     </div>
   {/if}
 
   </div>
   
-  <button class="btn btn-large btn-primary" on:click|preventDefault|once={handleSimularClick}> Simular</button>
-  <button class="btn btn-large btn-secondary" on:click|preventDefault|once={handleSimularSlideClick}> Simular Exemplo Slide</button>
+  <div class="offset-md-2">
+    <input type="submit" class="btn btn-large btn-primary">
+
+      <button class="btn btn-large btn-danger float-right" on:click|preventDefault|once={handleSimularSlideClick}> Simular Exemplo Slide</button>
+  </div>
+  
+  
 </form>
 
 <hr>
@@ -333,11 +374,11 @@
 
   <div class="row">
     <div class="col-md-4">
-      <ChartSimulacao  data={listaDeTemposMediosNafila} backgroundColor='#EF5B5B' numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio na fila de espera" />
+      <ChartSimulacao  data={listaDeTemposMediosNafila} backgroundColor='#EF5B5B' numeroDeIteracoes={numeroDeServicos || 30} titulo="Tempo médio na fila de espera" />
     </div>
 
     <div class="col-md-4">
-      <ChartSimulacao  data={listaDeTemposMediosDeServico} backgroundColor='#BAA5FF' numeroDeIteracoes={numeroDeServicos} titulo="Tempo médio de serviço" />
+      <ChartSimulacao  data={listaDeTemposMediosDeServico} backgroundColor='#BAA5FF' numeroDeIteracoes={numeroDeServicos || 30} titulo="Tempo médio de serviço" />
     </div>
 
     <div class="col-md-4">
@@ -357,15 +398,15 @@
 
   <div class="row">
    <div class="col-md-4">
-      <ChartSimulacao  data={listaDeProbabilidadesDeOperadoresLivre} backgroundColor='#466365' numeroDeIteracoes={numeroDeServicos} titulo="Probabilidade de operador livre" />
+      <ChartSimulacao  data={listaDeProbabilidadesDeOperadoresLivre} backgroundColor='#466365' numeroDeIteracoes={numeroDeServicos || 30} titulo="Probabilidade de operador livre" />
     </div>
 
     <div class="col-md-4">
-      <ChartSimulacao  data={listaDeProbDeClienteEsperarNaFila} backgroundColor='#ABFAA9' numeroDeIteracoes={numeroDeServicos} titulo="Probabilidade do cliente esperar" />
+      <ChartSimulacao  data={listaDeProbDeClienteEsperarNaFila} backgroundColor='#ABFAA9' numeroDeIteracoes={numeroDeServicos || 30} titulo="Probabilidade do cliente esperar" />
     </div>
 
      <div class="col-md-4">
-      <ChartSimulacao  data={listaDeTemposMediosDespendidoNoSistema} backgroundColor='#C6B9CD' numeroDeIteracoes={numeroDeServicos} titulo="Tempos Médios despendido no sistema" />
+      <ChartSimulacao  data={listaDeTemposMediosDespendidoNoSistema} backgroundColor='#C6B9CD' numeroDeIteracoes={numeroDeServicos || 30} titulo="Tempos Médios despendido no sistema" />
     </div>
   </div>
 
@@ -389,24 +430,22 @@
       </tr>
     </thead>
     <tbody>
-  {#if servicos.length != 0}
-    {#each servicos as servico}
-      <tr transition:fade="{{duration: 1000}}">
-        <th scope="row">{servico.cliente}</th>
-        <td>{servico.tempoDesdeUltimaChegada.toFixed(2)}</td>
-        <td>{servico.tempoChegadaNoRelogio.toFixed(2)}</td>
-        <td>{servico.tempoServico.toFixed(2)}</td>
-        <td>{servico.tempoInicioServicoNoRelogio.toFixed(2)}</td>
-        <td>{servico.tempoClienteNaFila.toFixed(2)}</td>
-        <td>{servico.tempoFinalDoServicoNoRelogio.toFixed(2)}</td>
-        <td>{servico.tempoClienteNoSistema.toFixed(2)}</td>
-        <td>{servico.tempoLivreDoOperador.toFixed(2)}</td>
-      </tr>
+      {#if servicos.length != 0}
+        {#each servicos as servico}
+          <tr transition:fade="{{duration: 1000, delay: 400}}">
+            <th scope="row">{servico.cliente}</th>
+            <td>{servico.tempoDesdeUltimaChegada.toFixed(2)}</td>
+            <td>{servico.tempoChegadaNoRelogio.toFixed(2)}</td>
+            <td>{servico.tempoServico.toFixed(2)}</td>
+            <td>{servico.tempoInicioServicoNoRelogio.toFixed(2)}</td>
+            <td>{servico.tempoClienteNaFila.toFixed(2)}</td>
+            <td>{servico.tempoFinalDoServicoNoRelogio.toFixed(2)}</td>
+            <td>{servico.tempoClienteNoSistema.toFixed(2)}</td>
+            <td>{servico.tempoLivreDoOperador.toFixed(2)}</td>
+          </tr>
 
-    {/each}
-  {/if}
-      
-
+        {/each}
+      {/if}
     </tbody>
   </table>
 
