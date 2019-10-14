@@ -57,7 +57,7 @@ Agora é só abrir o navegador no endereço [localhost:5000](http://localhost:50
 
 ---
 ### O que é uma fila M/M/1?
-Uma fila M/M/1 representa o comprimento de fila em um sistema que tem *um único servidor atende os clientes*. Além disso, possui tempo de atendimento exponencial (taxa µ) e intervalo exponencial entre as chegadas (taxa λ), definidas de acordo com um [processo de Poisson](https://pt.wikipedia.org/wiki/Processo_de_Poisson).
+Uma fila M/M/1 representa o comprimento de fila em um sistema que tem *um único servidor* para atender os clientes. Além disso, possui tempo de atendimento exponencial (taxa µ) e intervalo exponencial entre as chegadas (taxa λ), definidas de acordo com um [processo de Poisson](https://pt.wikipedia.org/wiki/Processo_de_Poisson).
 
 Vale ressaltar que é um processo estocástico (algumas variáveis de estado são randomicas) cujo espaço de estados é o conjunto {0, 1, 2, 3...} em que o valor corresponde ao número de clientes no sistema, incluindo aqueles que estão sendo servidos.
 O diagrama de estado abaixo demonstra o funcionamento de uma fila M/M/1:
