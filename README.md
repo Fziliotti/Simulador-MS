@@ -47,4 +47,22 @@ Uma fila M/M/1 representa o comprimento de fila em um sistema que tem *um único
 
 Vale ressaltar que é um processo estocástico (algumas variáveis de estado são randomicas) cujo espaço de estados é o conjunto {0, 1, 2, 3...} em que o valor corresponde ao número de clientes no sistema, incluindo aqueles que estão sendo servidos.
 O diagrama de estado abaixo demonstra o funcionamento de uma fila M/M/1:
-![Fila M/M/1](/images/mm1.png)
+<br>
+![Fila M/M/1](images/MM1.png)
+
+### Configurando a simulação
+É possivel configurar o *tempo de duração da simulação*, o *intervalo de tempo entre chegadas (taxa λ)* e o *tempo do serviço/atendimento (taxa µ)*, conforme demonstrado abaixo:
+<br>
+![Exemplo de configuração](images/configuracao.png)
+*NOTA: Caso queira um exemplo pré definido de simulação basta clicar em "Simular Exemplo Slide"*
+
+### Gráficos
+Esta aplicação conta com gráficos que auxiliam o usuário a acompanhar a evolução da simulação e ter acesso a importantes informações, conforme exemplo abaixo:
+<br>
+![Gráficos da simulação](images/graficos.png)
+
+### Tabela de Simulação
+O usuário poderá acompanhar todas as informações da simulação por meio da *Tabela de Simulação*, conforme exemplo abaixo:
+<br>
+![Tabela de Simulação](images/tabela.png)
+
