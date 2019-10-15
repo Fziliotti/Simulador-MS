@@ -153,17 +153,6 @@
     return novoServico
   }
 
-  
-//  let tecOpcoes = [
-// 		{ id: 1, text: `Determinístico` },
-// 		{ id: 2, text: `Aleatório Exponencial` }
-//   ];
-
-//   let tsOpcoes = [
-// 		{ id: 1, text: `Determinístico` },
-// 		{ id: 2, text: `Aleatório Exponencial` }
-//   ];
-
 
   const gerarTEC = () => {
     if (tecSelecionado.id === 1){
