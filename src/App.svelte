@@ -156,11 +156,11 @@
 
   const gerarTEC = () => {
     if (tecSelecionado.id === 1){
-      temposEntreTodasChegadas = [...temposEntreTodasChegadas, inputTEC]
+      temposEntreTodasChegadas = [...temposEntreTodasChegadas, inputMeanTEC]
     }
 
     if(tecSelecionado.id === 2){
-      let novoTEC = nextExponential((1/inputLambdaTEC));
+      let novoTEC = nextExponential((1/inputMeanTEC));
       temposEntreTodasChegadas = [...temposEntreTodasChegadas, novoTEC]
     }
 
@@ -172,11 +172,11 @@
 
   const gerarTS = () => {
     if (tsSelecionado.id === 1){
-      temposDeTodosOsServicos = [...temposDeTodosOsServicos, inputTS]
+      temposDeTodosOsServicos = [...temposDeTodosOsServicos, inputMeanTS]
     }
 
     if(tsSelecionado.id === 2){
-      let novoTS = nextExponential((1/inputLambdaTS));
+      let novoTS = nextExponential((1/inputMeanTS));
       temposDeTodosOsServicos = [...temposDeTodosOsServicos, novoTS]
     }
 
@@ -259,12 +259,6 @@
   let tecSelecionado = "";
   let tsSelecionado = "";
 
-  let inputTS = "";
-  let inputTEC = "";
-
-  let inputLambdaTEC = "";
-  let inputLambdaTS = "";
-
   let inputMeanTEC = "";
   let inputStdTEC = "";
 
@@ -312,16 +306,16 @@
 <form class="container my-5" on:submit={handleSubmit}>
   <div class="form-row">
     <div class="form-group col-md-4 offset-md-2">
-      <label for="inputTS">Tempo da simulação (em minutos) <strong>(max 24 hrs)</strong></label>
-      <input required bind:value={tempoTotalDeSimulacao} type="number" min="1" max="1440" class="form-control" id="inputTS" placeholder="tempo da simulação">
+      <label>Tempo da simulação (em minutos) <strong>(max 24 hrs)</strong></label>
+      <input required bind:value={tempoTotalDeSimulacao} type="number" min="1" max="1440" class="form-control" placeholder="tempo da simulação">
     </div>
   </div>
   
   <!-- Tempo entre chegadas -->
    <div class="form-row">
     <div class="form-group col-md-4 offset-md-2">
-      <label for="inputTEC">Tempo entre chegadas</label>
-      <select required class="form-control" value={tecSelecionado} id="inputTEC"  bind:value={tecSelecionado}>
+      <label >Tempo entre chegadas</label>
+      <select required class="form-control" value={tecSelecionado}  bind:value={tecSelecionado}>
         <option value={0}>
           Selecione alguma...
         </option>
@@ -335,13 +329,13 @@
 
   {#if tecSelecionado.id === 1 }
      <div in:fade  class="form-group col-md-4">
-      <label for="inputTEC">Qual o tempo entre as chegadas?</label>
-      <input type="number" bind:value={inputTEC} class="form-control" id="inputTEC" min="1" max="999" placeholder="tempo em minutos">
+      <label >Qual o tempo entre as chegadas?</label>
+      <input type="number" bind:value={inputMeanTEC} class="form-control"  min="1" max="999" placeholder="tempo em minutos">
     </div>
   {:else if tecSelecionado.id === 2}
     <div in:fade class="form-group col-md-2">
       <label for="inputLambdaExponencial">Valor da Média</label>
-      <input type="number" step="0.01" bind:value={inputLambdaTEC} class="form-control" id="inputLambdaExponencial" placeholder="tempo em minutos">
+      <input type="number" step="0.01" bind:value={inputMeanTEC} class="form-control" id="inputLambdaExponencial" placeholder="tempo em minutos">
     </div>
   {:else if tecSelecionado.id === 3}
     <div in:fade class="form-group col-md-2">
@@ -361,8 +355,8 @@
   <!-- Tempo de serviços -->
   <div class="form-row">
     <div class="form-group col-md-4 offset-md-2">
-      <label for="inputTS">Tempo dos serviços</label>
-      <select required class="form-control" value={tsSelecionado} id="inputTS"  bind:value={tsSelecionado}>
+      <label>Tempo dos serviços</label>
+      <select required class="form-control" value={tsSelecionado}  bind:value={tsSelecionado}>
         <option value={0}>
           Selecione alguma...
         </option>
@@ -377,12 +371,12 @@
   {#if tsSelecionado.id === 1 }
      <div in:fade  class="form-group col-md-4">
       <label for="inputNumeroDeServicos">Quantos minutos o serviço demora?</label>
-      <input type="number" bind:value={inputTS} class="form-control" id="inputNumeroDeServicos" min="1" max="999" placeholder="tempo em minutos">
+      <input type="number" bind:value={inputMeanTS} class="form-control"  id="inputNumeroDeServicos" min="1" max="999" placeholder="tempo em minutos">
     </div>
   {:else if tsSelecionado.id === 2}
     <div in:fade class="form-group col-md-2">
       <label for="inputNumeroDeServicos">Valor da Média</label>
-      <input type="number" step="0.01" class="form-control" bind:value={inputLambdaTS} id="inputNumeroDeServicos" placeholder="">
+      <input type="number" step="0.01" class="form-control" bind:value={inputMeanTS} id="inputNumeroDeServicos" placeholder="">
     </div>
   {:else if tsSelecionado.id === 3}
     <div in:fade class="form-group col-md-2">
