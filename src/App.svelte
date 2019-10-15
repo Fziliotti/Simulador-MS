@@ -171,7 +171,12 @@
     }
 
     if(tecSelecionado.id === 2){
-      let novoTEC = nextExponential(inputLambdaTEC);
+      let novoTEC = nextExponential((1/inputLambdaTEC));
+      temposEntreTodasChegadas = [...temposEntreTodasChegadas, novoTEC]
+    }
+
+    if(tecSelecionado.id === 3){
+      let novoTEC =  nextNormal(inputMeanTEC, inputStdTEC);
       temposEntreTodasChegadas = [...temposEntreTodasChegadas, novoTEC]
     }
   }
@@ -182,7 +187,12 @@
     }
 
     if(tsSelecionado.id === 2){
-      let novoTS = nextExponential(inputLambdaTS);
+      let novoTS = nextExponential((1/inputLambdaTS));
+      temposDeTodosOsServicos = [...temposDeTodosOsServicos, novoTS]
+    }
+
+    if(tsSelecionado.id === 3){
+      let novoTS = nextNormal(inputMeanTS, inputStdTS);
       temposDeTodosOsServicos = [...temposDeTodosOsServicos, novoTS]
     }
   }
@@ -247,12 +257,14 @@
   // CONTROLE FORMULÁRIO
   let tecOpcoes = [
 		{ id: 1, text: `Determinístico` },
-		{ id: 2, text: `Aleatório Exponencial` }
+    { id: 2, text: `Aleatório Exponencial` },
+    { id: 3, text: `Aleatório Normal`}
   ];
 
   let tsOpcoes = [
 		{ id: 1, text: `Determinístico` },
-		{ id: 2, text: `Aleatório Exponencial` }
+    { id: 2, text: `Aleatório Exponencial` },
+    { id: 3, text: `Aleatório Normal`}
   ];
 
   let tecSelecionado = "";
@@ -263,6 +275,13 @@
 
   let inputLambdaTEC = "";
   let inputLambdaTS = "";
+
+  let inputMeanTEC = "";
+  let inputStdTEC = "";
+
+  let inputMeanTS = "";
+  let inputStdTS = "";
+  
 
  
 
@@ -304,8 +323,8 @@
 <form class="container my-5" on:submit={handleSubmit}>
   <div class="form-row">
     <div class="form-group col-md-4 offset-md-2">
-      <label for="inputTS">Tempo da simulação</label>
-      <input required bind:value={tempoTotalDeSimulacao} type="number" min="1" max="9999" class="form-control" id="inputTS" placeholder="tempo da simulação">
+      <label for="inputTS">Tempo da simulação (em minutos) <strong>(max 24 hrs)</strong></label>
+      <input required bind:value={tempoTotalDeSimulacao} type="number" min="1" max="1440" class="form-control" id="inputTS" placeholder="tempo da simulação">
     </div>
   </div>
   
@@ -332,9 +351,19 @@
     </div>
   {:else if tecSelecionado.id === 2}
     <div in:fade class="form-group col-md-2">
-      <label for="inputLambdaExponencial">Valor do Lambda</label>
-      <input type="number" step="0.01" bind:value={inputLambdaTEC} class="form-control" id="inputLambdaExponencial" placeholder="">
+      <label for="inputLambdaExponencial">Valor da Média</label>
+      <input type="number" step="0.01" bind:value={inputLambdaTEC} class="form-control" id="inputLambdaExponencial" placeholder="tempo em minutos">
     </div>
+  {:else if tecSelecionado.id === 3}
+    <div in:fade class="form-group col-md-2">
+      <label for="inputMeanNormal">Valor da Média</label>
+      <input type="number" step="0.01" bind:value={inputMeanTEC} class="form-control" id="inputMeanNormal" placeholder="tempo em minutos">
+    </div>
+    <div in:fade class="form-group col-md-2">
+      <label for="inputStdNormal">Valor da Variância</label>
+      <input type="number" step="0.01" bind:value={inputStdTEC} class="form-control" id="inputStdNormal" placeholder="tempo em minutos">
+    </div>
+
   {/if}
 
   </div>
@@ -363,9 +392,19 @@
     </div>
   {:else if tsSelecionado.id === 2}
     <div in:fade class="form-group col-md-2">
-      <label for="inputNumeroDeServicos">Valor do Lambda</label>
+      <label for="inputNumeroDeServicos">Valor da Média</label>
       <input type="number" step="0.01" class="form-control" bind:value={inputLambdaTS} id="inputNumeroDeServicos" placeholder="">
     </div>
+  {:else if tsSelecionado.id === 3}
+    <div in:fade class="form-group col-md-2">
+      <label for="inputNumeroDeServicos">Valor da Média</label>
+      <input type="number" step="0.01" class="form-control" bind:value={inputMeanTS} id="inputNumeroDeServicos" placeholder="">
+      </div>
+      <div in:fade class="form-group col-md-2">
+      <label for="inputNumeroDeServicos">Valor da Variância</label>
+      <input type="number" step="0.01" class="form-control" bind:value={inputStdTS} id="inputNumeroDeServicos" placeholder="">
+    </div>
+
   {/if}
 
   </div>

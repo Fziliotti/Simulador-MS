@@ -64,7 +64,6 @@ const getNormalGenerator = function() {
 };
 
 
-
 export const nextExponential = function(lambda) {
   if (typeof lambda !== 'number') 
       throw new TypeError('nextExponential: lambda must be number.')
