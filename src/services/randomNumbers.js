@@ -57,7 +57,7 @@ const getNormalGenerator = function() {
 
           genReady = true;
 
-          return (sigma * x1) + mu;
+          return Math.abs((sigma * x1) + mu);
 
       };
   })();
