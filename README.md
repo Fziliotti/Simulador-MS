@@ -2,7 +2,8 @@
 
 Trata-se de um trabalho da disciplina de *Modelagem e Simulação (Ciências da Computação)* no qual desenvolvemos uma aplicação Web que permite a modelagem e simulação de um projeto utilizando o modelo de fila M/M/1, permitindo que o usuário acompanhe a evolução da simulação por meio de gráficos e da tabela de simulação.
 
-Website do projeto: https://fziliotti.github.io/Simulador-MS/
+### Website do projeto: https://fziliotti.github.io/Simulador-MS/
+
 ---
 ## Pré requisitos
 Verifique se já possui *npm* e *node* instalados:
