@@ -138,6 +138,7 @@
       cliente: novoCliente,
       tempoDesdeUltimaChegada: novoTempoDesdeUltimaChegada,
       tempoChegadaNoRelogio: novoTempoChegadaNoRelogio,
+      servidorResponsavel: 1,
       tempoServico: novoTempoDeServico,
       tempoInicioServicoNoRelogio: novoTempoInicioServicoNoRelogio(),
       tempoClienteNaFila: novoTempoClienteNaFila(),
@@ -157,6 +158,7 @@
 
     const novoServico = {
       cliente: 1,
+      servidorResponsavel: 1,
       tempoDesdeUltimaChegada: NTDUC,
       tempoChegadaNoRelogio: NTDUC,
       tempoServico: NTSNR,
@@ -230,16 +232,23 @@
         novoServico.tempoChegadaNoRelogio > tempoTotalDeSimulacao ||
         novoServico.tempoFinalDoServicoNoRelogio > tempoTotalDeSimulacao
       ) {
-        console.warn(`Excluído o último serviço pois ele seria: ${JSON.stringify(novoServico)}`)
+        console.warn(
+          `Excluído o último serviço pois ele seria: ${JSON.stringify(
+            novoServico
+          )}`
+        );
         break;
       }
 
-      servicos = [...servicos, novoServico];
       tempoAtualDaSimulação = novoServico.tempoFinalDoServicoNoRelogio;
+
+      servicos = [...servicos, novoServico];
       i++;
       alimentarDadosDosGraficos();
-      console.log(tempoAtualDaSimulação);
+      // console.log(tempoAtualDaSimulação);
     }
+
+    // console.log(servicos)
   };
 
   // FUNÇÕES DISPARADAS PELOS BOTÕES
@@ -477,12 +486,16 @@
           bind:value={inputStdTS}
           id="inputNumeroDeServicos"
           placeholder="" />
+
       </div>
     {/if}
 
   </div>
 
   <div class="offset-md-2">
+    <small id="valuesHelp" class="form-text text-muted mb-2 pb-2">
+      Lembre-se de garantir o estado estacionário, com (&rho; &lt; 1) !
+    </small>
     <input type="submit" value="Simular" class="btn btn-large btn-primary" />
 
     <button
@@ -605,6 +618,7 @@
         <th scope="col">Tempo desde ultima chegada</th>
         <th scope="col">Tempo de chegada no relogio</th>
         <th scope="col">Tempo de serviço</th>
+        <th scope="col">Servidor responsável</th>
         <th scope="col">Tempo de início do serviço no relógio</th>
         <th scope="col">Tempo de cliente na fila</th>
         <th scope="col">Tempo final do serviço no relógio</th>
@@ -620,6 +634,7 @@
             <td>{servico.tempoDesdeUltimaChegada.toFixed(2)}</td>
             <td>{servico.tempoChegadaNoRelogio.toFixed(2)}</td>
             <td>{servico.tempoServico.toFixed(2)}</td>
+            <td>{servico.servidorResponsavel}</td>
             <td>{servico.tempoInicioServicoNoRelogio.toFixed(2)}</td>
             <td>{servico.tempoClienteNaFila.toFixed(2)}</td>
             <td>{servico.tempoFinalDoServicoNoRelogio.toFixed(2)}</td>
